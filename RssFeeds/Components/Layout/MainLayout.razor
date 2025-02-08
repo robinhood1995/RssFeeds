@@ -1,0 +1,27 @@
+﻿@inherits LayoutComponentBase
+@inject IJSRuntime JSRuntime
+
+<div class="page">
+    @*     <div class="sidebar">
+        <NavMenu />
+    </div> *@
+
+    <main>
+        <div class="top-row center px-4">
+            @*             <NavLink class="nav-link" href="/rssfeed">
+                <span class="oi oi-list-rich" aria-hidden="true"></span> RSS Feed
+            </NavLink> *@
+            <h1>45-47th President Personal News Feed</h1>
+        </div>
+
+        <article class="content-wrapper px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+</div>
