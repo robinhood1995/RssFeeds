@@ -7,6 +7,10 @@
 
 - Creation
 
+## [1.0.1]
+
+- Added more CSS and Images
+
 ### Fixed
 
 ### Added
