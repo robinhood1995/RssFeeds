@@ -1,88 +1,68 @@
 ﻿@page "/"
-@inject RssFeeds.Services.RssFeedService RssFeedService
 @using Microsoft.EntityFrameworkCore
 @using RssFeeds.Models
 @inject NavigationManager NavigationManager
 @inject IConfiguration _config
 @inject IJSRuntime jsRuntime
 @inject IDbContextFactory<RssFeeds.Models.NewsFeedContext> DbFactory
+@implements IDisposable
 
-<ul>
-    @if (rssItems == null)
-    {
-        <li>Loading...</li>
-    }
-    else
-    {
-
-        @foreach (var item in rssItems)
-        {
-            <li>
-                <a href="@item.Links.FirstOrDefault()?.Uri" target="_blank">@item.Title.Text</a>
-                <p>@item.Summary.Text</p>
-            </li>
-        }
-
-    }
-</ul>
+@if (RssItems == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Link</th>
+                <th>Publication Date</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in RssItems)
+            {
+                <tr>
+                    <td>@item.Title</td>
+                    <td><a href="@item.Link" target="_blank">@item.Link</a></td>
+                    <td>@item.PublicationDate!.Value.ToString("yyyy-MM-dd")</td>
+                    <td>@item.Description</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
 
 @code {
-    private List<System.ServiceModel.Syndication.SyndicationItem> rssItems;
-
+    
     private NewsFeedContext context = default!;
-
+    
+    private List<NewsFeed> RssItems;
+    private Timer _timer;
 
     protected override async Task OnInitializedAsync()
     {
         context = DbFactory.CreateDbContext();
 
-        var feeds = context.NewsFeedUrls.ToList();
-
-        foreach (var f in feeds)
-        {
-            rssItems = await RssFeedService.GetRssFeedAsync(f.NewsFeedUrl1.ToString());
-        }
-
-        foreach (var r in rssItems)
-        {
-
-            var docResults = (from d in context.NewsFeeds
-                              select new { d.Id, d.NewsFeedLink, d.NewsFeedExcert })
-                                     .Where(d => d.NewsFeedExcert == r.Title.Text).ToList();
-            foreach (var d in docResults)
-            {
-                var updDoc = context.NewsFeeds.Find(d.Id);
-
-                if (updDoc == null)
-                {
-                    updDoc.NewsFeedLink = r.Title.Text;
-                    updDoc.NewsFeedExcert = r.Summary.Text;
-                    context.Entry(updDoc).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
-                    context.SaveChanges();
-                }
-                else
-                {
-
-                    using (var context = DbFactory.CreateDbContext())
-                    {
-                        var feed = new NewsFeed()
-                            {
-                                NewsFeedUrlId = d.Id,
-                                NewsFeedLink = r.Title.Text,
-                                NewsFeedExcert = r.Summary.Text,
-                                // context.NewsFeeds.Add(feed);
-                                // context.
-                            };
-                    };
-                    context.Attach(context!).State = EntityState.Modified;
-                    await context.SaveChangesAsync();
-
-                    NavigationManager.NavigateTo("/", forceLoad: true);
-
-
-                }
-            }
-        }
-
+        await LoadData();
+        _timer = new Timer(async _ => await LoadData(), null, TimeSpan.FromSeconds(60), TimeSpan.FromSeconds(60)); // refresh every 5 seconds.
     }
+
+    private async Task LoadData()
+    {
+
+        RssItems = null; // Clear the data.
+        StateHasChanged(); // Force a re-render to show the loading indicator.
+        RssItems = await context.NewsFeeds.OrderByDescending(item => item.PublicationDate).ToListAsync();
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        _timer?.Dispose();
+    }
+
 }

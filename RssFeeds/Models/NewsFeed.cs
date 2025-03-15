@@ -2,16 +2,27 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace RssFeeds.Models;
 
+[Table("NewsFeed")]
 public partial class NewsFeed
 {
+    [Key]
     public int Id { get; set; }
 
-    public int? NewsFeedUrlId { get; set; }
+    [StringLength(250)]
+    public string? Title { get; set; }
 
-    public string? NewsFeedLink { get; set; }
+    [StringLength(250)]
+    public string? Link { get; set; }
 
-    public string? NewsFeedExcert { get; set; }
+    [Column(TypeName = "datetime")]
+    public DateTime? PublicationDate { get; set; }
+
+    [StringLength(250)]
+    public string? Description { get; set; }
 }

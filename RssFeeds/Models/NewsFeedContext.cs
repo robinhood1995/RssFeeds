@@ -19,23 +19,6 @@ public partial class NewsFeedContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<NewsFeed>(entity =>
-        {
-            entity.ToTable("NewsFeed");
-
-            entity.Property(e => e.NewsFeedExcert).HasMaxLength(250);
-            entity.Property(e => e.NewsFeedLink).HasMaxLength(150);
-        });
-
-        modelBuilder.Entity<NewsFeedUrl>(entity =>
-        {
-            entity.ToTable("NewsFeedUrl");
-
-            entity.Property(e => e.NewsFeedUrl1)
-                .HasMaxLength(150)
-                .HasColumnName("NewsFeedUrl");
-        });
-
         OnModelCreatingPartial(modelBuilder);
     }
 

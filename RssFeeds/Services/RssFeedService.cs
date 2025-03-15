@@ -1,4 +1,10 @@
-﻿using System.ServiceModel.Syndication;
+﻿using Microsoft.Extensions.Options;
+using RssFeeds.Models;
+using System;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.ServiceModel.Syndication;
+using System.Threading.Tasks;
 using System.Xml;
 
 namespace RssFeeds.Services
